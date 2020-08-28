@@ -21,7 +21,11 @@ const fetchOpenOraclePayload = async () => {
     const res = await fetch(OKEX_ENDPOINT, {
       headers: headers,
     })
-    return await res.json()
+    let { messages, signatures } = await res.json()
+    signatures = signatures.map(signature => {
+      return signature.substring(0, 130) + (parseInt(signature.substring(192), 16) - 27 === 1 ? '01' : '00')
+    })
+    return { messages, signatures }
   } catch (error) {
     console.error(error)
   }

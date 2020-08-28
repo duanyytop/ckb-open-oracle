@@ -4,24 +4,21 @@ const CKB_INDEXER_URL = 'https://prototype.ckbapp.dev/testnet/indexer'
 const CKB_WS_URL = 'wss://ws-prototype.ckbapp.dev/testnet/rpc'
 
 const OracleLockScript = {
-  codeHash: '0x3a7b00b74ef24c93967ad9e933d4c12eb54c4f87f20c11d9a5ae4e10267e2444',
+  codeHash: '0x224fe274a7b005cd299f7223afa8ab4be24d0d754cf9655dfa3a4cb497f0f32b',
   hashType: 'type',
   args: '0x85615b076615317c80f14cbad6501eec031cd51c',
 }
 
 const OracleDeps = {
-  outPoint: { txHash: '0xdbed1ab475285d29c451cb6c8f7e0d73a771f3bb9cc4a20fa15acbced9fd8384', index: '0x0' },
-  depType: 'code',
+  outPoint: { txHash: '0x8e64c6b0bed8231b1490fb04be49f100dfcd50279bcd484b699bd7a17e44aa2a', index: '0x0' },
+  depType: 'depGroup',
 }
-
-const OPEN_TOKENS = ['BTC', 'ETH']
 
 module.exports = {
   OKEX_ENDPOINT,
   CKB_NODE_URL,
   CKB_INDEXER_URL,
   CKB_WS_URL,
-  OPEN_TOKENS,
   OracleLockScript,
   OracleDeps,
 }

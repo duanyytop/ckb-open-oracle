@@ -1,35 +1,22 @@
-const {
-  getTransactionByHash,
-  secp256k1LockScript,
-  getCells,
-  generateEmptyLiveCells,
-  generateOracleLiveCells,
-  updateOracleLiveCells,
-} = require('./rpc')
+const { secp256k1LockScript, getCells, generateEmptyLiveCells, generateOracleLiveCells, updateOracleLiveCells } = require('./rpc')
 const fetchOpenOraclePayload = require('./service')
-const { OPEN_TOKENS, OracleLockScript } = require('../utils/const')
+const { OracleLockScript } = require('../utils/const')
 const { containOracleData } = require('../utils/utils')
 
-let txHash = ''
-
 const postOpenOracle = async () => {
-  const length = OPEN_TOKENS.length
   const liveCells = await getCells(await secp256k1LockScript())
   const oracleLiveCells = await getCells(OracleLockScript)
-  if (liveCells.length < length) {
-    if (txHash && !(await getTransactionByHash(txHash))) {
-      return
-    }
+  const { messages, signatures } = await fetchOpenOraclePayload()
+  console.log(JSON.stringify(liveCells))
+  if (liveCells.length < messages.length && !containOracleData(oracleLiveCells)) {
     console.info('Generate Live Cells')
-    txHash = await generateEmptyLiveCells(length)
+    await generateEmptyLiveCells(messages.length)
   } else if (!containOracleData(oracleLiveCells)) {
     console.info('Post Oracle to Live Cells Data')
-    const { messages } = await fetchOpenOraclePayload()
-    await generateOracleLiveCells(oracleLiveCells, messages)
+    await generateOracleLiveCells(liveCells, messages)
   } else {
     console.info('Update Oracle Cells Data')
-    const { messages, signatures } = await fetchOpenOraclePayload()
-    await updateOracleLiveCells(oracleLiveCells, messages, signatures)
+    await updateOracleLiveCells(liveCells, oracleLiveCells, messages, signatures)
   }
 }
 
