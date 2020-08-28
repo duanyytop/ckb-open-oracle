@@ -1,2 +1,3 @@
-# ckb-oracle-poster
-A poster fetching kinds of oracle data and posting to Nervos CKB
+# ckb-open-oracle
+
+A poster fetching open oracle data and posting to Nervos CKB

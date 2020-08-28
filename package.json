@@ -1,7 +1,7 @@
 {
-  "name": "ckb-oracle-poster",
+  "name": "ckb-open-oracle",
   "version": "1.0.0",
-  "description": "A poster fetching kinds of oracle data and posting to Nervos CKB",
+  "description": "A poster fetching open oracle data and posting to Nervos CKB",
   "main": "index.js",
   "repository": "git@github.com:duanyytop/ckb-oracle-poster.git",
   "author": "duanyytop <duanyytop@gmail.com>",
@@ -22,7 +22,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint && yarn test"
+      "pre-commit": "yarn lint"
     }
   }
 }
