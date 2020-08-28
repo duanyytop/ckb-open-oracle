@@ -160,7 +160,7 @@ const generateOracleLiveCells = async (liveCells, messages) => {
         outputs: [
           {
             capacity: `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`,
-            OracleLockScript,
+            lock: OracleLockScript,
             type: null,
           },
         ],
@@ -202,7 +202,7 @@ const updateOracleLiveCells = async (liveCells, messages, signatures) => {
       outputs: [
         {
           capacity: `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`,
-          OracleLockScript,
+          lock: OracleLockScript,
           type: null,
         },
       ],
