@@ -18,6 +18,7 @@
   "dependencies": {
     "@nervosnetwork/ckb-sdk-core": "^0.34.0",
     "node-fetch": "^2.6.0",
+    "open-oracle-reporter": "^1.0.2",
     "ws": "^7.3.1"
   },
   "husky": {
