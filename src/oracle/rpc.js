@@ -148,6 +148,9 @@ const generateOracleLiveCells = async (liveCells, messages) => {
   liveCells
     .filter(cell => new BN(remove0x(cell.output.capacity), 16).cmp(EACH_CAPACITY) === 0)
     .forEach((cell, index) => {
+      if (index >= messages.length) {
+        return
+      }
       const rawTx = {
         version: '0x0',
         cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],

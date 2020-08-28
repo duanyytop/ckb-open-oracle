@@ -1,4 +1,11 @@
-const { getTransactionByHash, getCells, generateEmptyLiveCells, generateOracleLiveCells, updateOracleLiveCells } = require('./rpc')
+const {
+  getTransactionByHash,
+  secp256k1LockScript,
+  getCells,
+  generateEmptyLiveCells,
+  generateOracleLiveCells,
+  updateOracleLiveCells,
+} = require('./rpc')
 const fetchOpenOraclePayload = require('./service')
 const { OPEN_TOKENS, OracleLockScript } = require('../utils/const')
 const { containOracleData } = require('../utils/utils')
@@ -7,8 +14,9 @@ let txHash = ''
 
 const postOpenOracle = async () => {
   const length = OPEN_TOKENS.length
+  const liveCells = await getCells(await secp256k1LockScript())
   const oracleLiveCells = await getCells(OracleLockScript)
-  if (oracleLiveCells.length < length) {
+  if (liveCells.length < length) {
     if (txHash && !(await getTransactionByHash(txHash))) {
       return
     }
