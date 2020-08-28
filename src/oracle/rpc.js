@@ -1,7 +1,8 @@
 const CKB = require('@nervosnetwork/ckb-sdk-core').default
 const fetch = require('node-fetch')
 const BN = require('bn.js')
-const { CKB_INDEXER_URL, CKB_NODE_URL, PRI_KEY, OracleLockScript, OracleDeps } = require('../utils/const')
+const { PRI_KEY } = require('../utils/config')
+const { CKB_INDEXER_URL, CKB_NODE_URL, OracleLockScript, OracleDeps } = require('../utils/const')
 const { remove0x } = require('../utils/utils')
 
 const ckb = new CKB(CKB_NODE_URL)

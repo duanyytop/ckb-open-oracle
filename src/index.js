@@ -1,6 +1,6 @@
 const WebSocket = require('ws')
 const { CKB_WS_URL } = require('./utils/const')
-const { postOpenOracle } = require('./open-oracle/poster')
+const { postOpenOracle } = require('./oracle/poster')
 
 const startPoster = async () => {
   let ws = new WebSocket(CKB_WS_URL)
