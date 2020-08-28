@@ -1,6 +1,7 @@
 const CKB = require('@nervosnetwork/ckb-sdk-core').default
 const fetch = require('node-fetch')
 const BN = require('bn.js')
+const { Reporter } = require('open-oracle-reporter')
 const { PRI_KEY } = require('../utils/config')
 const { CKB_INDEXER_URL, CKB_NODE_URL, OracleLockScript, OracleDeps } = require('../utils/const')
 const { remove0x } = require('../utils/utils')
@@ -176,9 +177,23 @@ const generateOracleLiveCells = async (liveCells, messages) => {
     .catch(console.error)
 }
 
+const getMatchedIndex = (outputData, messages) => {
+  // For example: // [ [ '1583195520', 'BTC', '8845095000' ] ]
+  let decoded = Reporter.decode('prices', [outputData])
+  const tokenSymbol = decoded[0][1]
+  decoded = Reporter.decode('prices', messages)
+  for (let index = 0; index < decoded.length; index++) {
+    if (decoded[index][1] === tokenSymbol) {
+      return index
+    }
+  }
+  throw Error('Output data is not matched')
+}
+
 const updateOracleLiveCells = async (liveCells, messages, signatures) => {
   const requests = []
-  liveCells.forEach((cell, index) => {
+  liveCells.forEach(cell => {
+    const index = getMatchedIndex(cell.output_data, messages)
     const rawTx = {
       version: '0x0',
       cellDeps: [OracleDeps],
