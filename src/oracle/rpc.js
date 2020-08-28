@@ -84,6 +84,10 @@ const multiOutputsData = length => {
   return data
 }
 
+const getTransactionByHash = async hash => {
+  return await ckb.rpc.getTransaction(hash)
+}
+
 const getCells = async lock => {
   let payload = {
     id: 1,
@@ -135,6 +139,7 @@ const generateEmptyLiveCells = async length => {
   const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
   const txHash = await ckb.rpc.sendTransaction(signedTx)
   console.info(`Transaction has been sent with tx hash ${txHash}`)
+  return txHash
 }
 
 const generateOracleLiveCells = async (liveCells, messages) => {
@@ -196,6 +201,7 @@ const updateOracleLiveCells = async (liveCells, messages, signatures) => {
 }
 
 module.exports = {
+  getTransactionByHash,
   secp256k1LockScript,
   getCells,
   generateEmptyLiveCells,
