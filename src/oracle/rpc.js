@@ -10,7 +10,7 @@ const { remove0x } = require('../utils/utils')
 const ckb = new CKB(CKB_NODE_URL)
 const PUB_KEY = ckb.utils.privateKeyToPublicKey(PRI_KEY)
 const ARGS = '0x' + ckb.utils.blake160(PUB_KEY, 'hex')
-const FEE = new BN(10000)
+const FEE = new BN(5000)
 const EACH_CAPACITY = new BN(40000000000)
 const CHANGE_CAPACITY = new BN(16000000000)
 
@@ -232,7 +232,6 @@ const updateOracleCells = async (liveCells, oracleLiveCells, messages, signature
     })
     const signedTx = { ...rawTx, witnesses: signedWitnesses }
     requests.push(['sendTransaction', signedTx])
-    console.log(JSON.stringify(signedTx))
   })
   const batch = ckb.rpc.createBatchRequest(requests)
   batch
