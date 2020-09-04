@@ -23,6 +23,7 @@ const fetchOpenOraclePayload = async () => {
     })
     let { messages, signatures } = await res.json()
     signatures = signatures.map(signature => {
+      // Ethereum secp256k1 signature recId should minus 27
       return signature.substring(0, 130) + (parseInt(signature.substring(192), 16) - 27 === 1 ? '01' : '00')
     })
     return { messages, signatures }

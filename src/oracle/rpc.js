@@ -142,14 +142,13 @@ const generateEmptyLiveCells = async length => {
     outputsData: multiOutputsData(outputs.length),
   }
   rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
-  console.info(JSON.stringify(rawTx))
   const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
   const txHash = await ckb.rpc.sendTransaction(signedTx)
   console.info(`Transaction has been sent with tx hash ${txHash}`)
   return txHash
 }
 
-const generateOracleLiveCells = async (liveCells, messages) => {
+const generateOracleCells = async (liveCells, messages) => {
   const requests = []
   const cellDeps = [await secp256k1Dep()]
   liveCells.forEach((cell, index) => {
@@ -169,7 +168,6 @@ const generateOracleLiveCells = async (liveCells, messages) => {
         outputsData: [messages[index]],
       }
       rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
-      console.info(JSON.stringify(rawTx))
       const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
       requests.push(['sendTransaction', signedTx])
     }
@@ -194,9 +192,13 @@ const getMatchedIndex = (outputData, messages) => {
   throw Error('Output data is not matched')
 }
 
-const updateOracleLiveCells = async (liveCells, oracleLiveCells, messages, signatures) => {
+const updateOracleCells = async (liveCells, oracleLiveCells, messages, signatures) => {
+  const requests = []
   const cellDeps = [OracleDeps, await secp256k1Dep()]
   const secp256k1Lock = await secp256k1LockScript()
+  const keys = new Map()
+  keys.set(scriptToHash(OracleLockScript), undefined)
+  keys.set(scriptToHash(secp256k1Lock), PRI_KEY)
   oracleLiveCells.forEach(async (cell, index) => {
     const msgIndex = getMatchedIndex(cell.output_data, messages)
     const rawTx = {
@@ -219,12 +221,8 @@ const updateOracleLiveCells = async (liveCells, oracleLiveCells, messages, signa
       outputsData: [messages[msgIndex], '0x'],
     }
     rawTx.witnesses = [signatures[msgIndex], { lock: '', inputType: '', outputType: '' }]
-    const keys = new Map()
-    keys.set(scriptToHash(OracleLockScript), undefined)
-    keys.set(scriptToHash(secp256k1Lock), PRI_KEY)
-    const transactionHash = rawTransactionToHash(rawTx)
     const signedWitnesses = ckb.signWitnesses(keys)({
-      transactionHash,
+      transactionHash: rawTransactionToHash(rawTx),
       witnesses: rawTx.witnesses,
       inputCells: [
         { outPoint: rawTx.inputs[0].previousOutput, lock: OracleLockScript },
@@ -233,20 +231,20 @@ const updateOracleLiveCells = async (liveCells, oracleLiveCells, messages, signa
       skipMissingKeys: true,
     })
     const signedTx = { ...rawTx, witnesses: signedWitnesses }
+    requests.push(['sendTransaction', signedTx])
     console.log(JSON.stringify(signedTx))
-    try {
-      const txHash = await ckb.rpc.sendTransaction(signedTx)
-      console.log(txHash)
-    } catch (error) {
-      console.error(error)
-    }
   })
+  const batch = ckb.rpc.createBatchRequest(requests)
+  batch
+    .exec()
+    .then(console.info)
+    .catch(console.error)
 }
 
 module.exports = {
   secp256k1LockScript,
   getCells,
   generateEmptyLiveCells,
-  generateOracleLiveCells,
-  updateOracleLiveCells,
+  generateOracleCells,
+  updateOracleCells,
 }
