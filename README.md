@@ -28,6 +28,17 @@ $ yarn install
 $ yarn start
 ```
 
+### Script info in Aggron
+
+The script of open oracle has been deployed in Aggron whose `out_point` and `cell_deps` are:
+
+```
+txHash: 0x8e64c6b0bed8231b1490fb04be49f100dfcd50279bcd484b699bd7a17e44aa2a
+index: 0
+depType: depGroup
+codeHash: 0x224fe274a7b005cd299f7223afa8ab4be24d0d754cf9655dfa3a4cb497f0f32b
+```
+
 ### Resource
 
 - [open oracle](https://github.com/compound-finance/open-oracle) - A standard and SDK allowing reporters to sign key-value pairs (e.g. a price feed) that interested users can post to the blockchain
