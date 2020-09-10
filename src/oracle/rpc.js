@@ -245,7 +245,7 @@ const updateOracleCells = async (liveCells, oracleLiveCells, messages, signature
   keys.set(scriptToHash(secp256k1Lock), PRI_KEY)
   const signedWitnesses = ckb.signWitnesses(keys)({
     transactionHash: rawTransactionToHash(rawTx),
-    witnesses: rawTx.witnesses,
+    witnesses: witnesses,
     inputCells: rawTx.inputs.map((input, index) => {
       return {
         outPoint: input.previousOutput,
