@@ -246,10 +246,10 @@ const updateOracleCells = async (liveCells, oracleLiveCells, messages, signature
   const signedWitnesses = ckb.signWitnesses(keys)({
     transactionHash: rawTransactionToHash(rawTx),
     witnesses: witnesses,
-    inputCells: rawTx.inputs.map((input, index) => {
+    inputCells: inputs.map((input, index) => {
       return {
         outPoint: input.previousOutput,
-        lock: index === rawTx.inputs.length - 1 ? secp256k1Lock : OracleLockScript,
+        lock: index === inputs.length - 1 ? secp256k1Lock : OracleLockScript,
       }
     }),
     skipMissingKeys: true,
