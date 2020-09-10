@@ -255,7 +255,7 @@ const updateOracleCells = async (liveCells, oracleLiveCells, messages, signature
     skipMissingKeys: true,
   })
   const signedTx = { ...rawTx, witnesses: signedWitnesses }
-  const txHash = ckb.rpc.sendTransaction(signedTx)
+  const txHash = await ckb.rpc.sendTransaction(signedTx)
   console.info(`Update oracle cell data tx: ${txHash}`)
 }
 
