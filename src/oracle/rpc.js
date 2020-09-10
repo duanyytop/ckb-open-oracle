@@ -192,52 +192,71 @@ const getMatchedIndex = (outputData, messages) => {
   throw Error('Output data is not matched')
 }
 
+const getMaxCapacityCell = cells => {
+  let maxCell = cells[0]
+  for (let cell of cells) {
+    if (new BN(remove0x(cell.output.capacity)).cmp(new BN(remove0x(maxCell.output.capacity))) > 0) {
+      maxCell = cell
+    }
+  }
+  return maxCell
+}
+
 const updateOracleCells = async (liveCells, oracleLiveCells, messages, signatures) => {
-  const requests = []
   const cellDeps = [OracleDeps, await secp256k1Dep()]
   const secp256k1Lock = await secp256k1LockScript()
+  let rawTx = {
+    version: '0x0',
+    cellDeps,
+    headerDeps: [],
+  }
+  let inputs = []
+  let outputs = []
+  let outputsData = []
+  let witnesses = []
+  oracleLiveCells.forEach(async cell => {
+    const msgIndex = getMatchedIndex(cell.output_data, messages)
+    inputs.push(generateInput(cell))
+    outputs.push({
+      capacity: cell.output.capacity,
+      lock: OracleLockScript,
+      type: null,
+    })
+    outputsData.push(messages[msgIndex])
+    witnesses.push(signatures[msgIndex])
+  })
+  const maxCapacityCell = getMaxCapacityCell(liveCells)
+  inputs.push(generateInput(maxCapacityCell))
+  outputs.push({
+    capacity: `0x${new BN(remove0x(maxCapacityCell.output.capacity), 'hex').sub(FEE).toString(16)}`,
+    lock: secp256k1Lock,
+    type: null,
+  })
+  outputsData.push('0x')
+  witnesses.push({ lock: '', inputType: '', outputType: '' })
+  rawTx = {
+    ...rawTx,
+    inputs,
+    outputs,
+    outputsData,
+  }
   const keys = new Map()
   keys.set(scriptToHash(OracleLockScript), undefined)
   keys.set(scriptToHash(secp256k1Lock), PRI_KEY)
-  oracleLiveCells.forEach(async (cell, index) => {
-    const msgIndex = getMatchedIndex(cell.output_data, messages)
-    const rawTx = {
-      version: '0x0',
-      cellDeps,
-      headerDeps: [],
-      inputs: [generateInput(cell), generateInput(liveCells[index])],
-      outputs: [
-        {
-          capacity: cell.output.capacity,
-          lock: OracleLockScript,
-          type: null,
-        },
-        {
-          capacity: `0x${new BN(remove0x(liveCells[index].output.capacity), 'hex').sub(FEE).toString(16)}`,
-          lock: secp256k1Lock,
-          type: null,
-        },
-      ],
-      outputsData: [messages[msgIndex], '0x'],
-    }
-    rawTx.witnesses = [signatures[msgIndex], { lock: '', inputType: '', outputType: '' }]
-    const signedWitnesses = ckb.signWitnesses(keys)({
-      transactionHash: rawTransactionToHash(rawTx),
-      witnesses: rawTx.witnesses,
-      inputCells: [
-        { outPoint: rawTx.inputs[0].previousOutput, lock: OracleLockScript },
-        { outPoint: rawTx.inputs[1].previousOutput, lock: secp256k1Lock },
-      ],
-      skipMissingKeys: true,
-    })
-    const signedTx = { ...rawTx, witnesses: signedWitnesses }
-    requests.push(['sendTransaction', signedTx])
+  const signedWitnesses = ckb.signWitnesses(keys)({
+    transactionHash: rawTransactionToHash(rawTx),
+    witnesses: rawTx.witnesses,
+    inputCells: rawTx.inputs.map((input, index) => {
+      return {
+        outPoint: input.previousOutput,
+        lock: index === rawTx.inputs.length - 1 ? secp256k1Lock : OracleLockScript,
+      }
+    }),
+    skipMissingKeys: true,
   })
-  const batch = ckb.rpc.createBatchRequest(requests)
-  batch
-    .exec()
-    .then(console.info)
-    .catch(console.error)
+  const signedTx = { ...rawTx, witnesses: signedWitnesses }
+  const txHash = ckb.rpc.sendTransaction(signedTx)
+  console.info(`Update oracle cell data tx: ${txHash}`)
 }
 
 module.exports = {
