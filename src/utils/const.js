@@ -1,6 +1,6 @@
 const OKEX_ENDPOINT = 'https://www.okex.com/api/market/v3/oracle'
-const CKB_NODE_URL = 'https://testnet.ckb.dev/rpc'
-const CKB_INDEXER_URL = 'https://testnet.ckb.dev/indexer_rpc'
+const CKB_NODE_URL = 'https://prototype.ckbapp.dev/testnet/rpc'
+const CKB_INDEXER_URL = 'https://prototype.ckbapp.dev/testnet/indexer'
 const CKB_WS_URL = 'wss://ws-prototype.ckbapp.dev/testnet/rpc'
 
 const OracleLockScript = {
