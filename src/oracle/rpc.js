@@ -260,7 +260,13 @@ const updateOracleCells = async (liveCells, oracleLiveCells, messages, signature
     console.info(`Update oracle cell data tx: ${txHash}`)
   } catch (error) {
     console.error(error)
-    console.error(error.code)
+    if (error.code === -1106) {
+      ckb.rpc.addMethod({
+        name: 'clearTxPool',
+        method: 'clear_tx_pool',
+      })
+      ckb.rpc.clearTxPool()
+    }
   }
 }
 
