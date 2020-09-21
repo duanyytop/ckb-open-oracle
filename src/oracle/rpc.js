@@ -255,8 +255,19 @@ const updateOracleCells = async (liveCells, oracleLiveCells, messages, signature
     skipMissingKeys: true,
   })
   const signedTx = { ...rawTx, witnesses: signedWitnesses }
-  const txHash = await ckb.rpc.sendTransaction(signedTx)
-  console.info(`Update oracle cell data tx: ${txHash}`)
+  try {
+    const txHash = await ckb.rpc.sendTransaction(signedTx)
+    console.info(`Update oracle cell data tx: ${txHash}`)
+  } catch (error) {
+    console.error(error)
+    if (error.code === -1106) {
+      ckb.rpc.addMethod({
+        name: 'clearTxPool',
+        method: 'clear_tx_pool',
+      })
+      ckb.rpc.clearTxPool()
+    }
+  }
 }
 
 module.exports = {
